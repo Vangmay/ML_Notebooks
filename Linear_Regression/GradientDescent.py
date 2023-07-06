@@ -6,7 +6,8 @@
 # Calculate the new parameters: New params = old params - step 
 
 
-import random 
+# f(x) = 5x + 3 
+# Making a dictionary mapping x to f(x) --> x : f(x) (The function I want)
 f = {i : ((i*5) + 3) for i in range(0,1000)}
 points = f 
 
@@ -50,10 +51,10 @@ def GradientDescent(Yintercept, Slope, iterations, points, learningRate):
 
 def Start():
     points = f 
-    learningRate = 0.0000005
+    learningRate = 0.0001
     Yintercept = 0
     Gradient = 0
-    iterations = 200000
+    iterations = 1000
     [b,m] = GradientDescent(Yintercept, Gradient, iterations, points, learningRate)
     print(f"Y = {m}X + {b}")
 
