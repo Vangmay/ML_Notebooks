@@ -8,7 +8,7 @@
 
 # f(x) = 5x + 3 
 # Making a dictionary mapping x to f(x) --> x : f(x) (The function I want)
-f = {i : ((i*5) + 3) for i in range(0,1000)}
+f = {i : ((i*5) + 3) for i in range(0,100000)}
 points = f 
 
 
@@ -22,39 +22,32 @@ def Loss(Yintercept, Slope ,points):
         totalError += (points[i] - ((Slope * i) + Yintercept)) ** 2    
     return (totalError)
 
-def ErrorAtAPoint(Points, i, Yintercept, Slope):
-    """
-    This function returns the differences between the TrueY and PredictedY needed for derivative calculation
-    """
-    TrueX = i 
-    TrueY = Points[i]
-    PredictedY = (Slope * i) + Yintercept
-    return (TrueY - PredictedY)
 
 def Step(Yintercept, Slope, points, learningRate):
     """
     This function calculates the step size and updates the values of Yintercept and Slope
     """
     dlDm , dlDs = 0,0  
-    N = float(len(points))
     for i in range(0,len(points)):
-        dlDm = -2 * ErrorAtAPoint(points, i, Yintercept, Slope) # Relates how the Loss changes as the intercept changes
-        dlDs = -2 * i * ErrorAtAPoint(points, i, Yintercept, Slope ) # Relates how the Loss changes as the Slope changes
+        dlDm += -2 * (points[i] - ((Slope * i  ) + Yintercept)) # Relates how the Loss changes as the intercept changes
+        dlDs += -2 * i * (points[i] - ((Slope * i  ) + Yintercept)) # Relates how the Loss changes as the Slope changes
     newIntercept = Yintercept - (dlDm * learningRate)
     newSlope = Slope - (dlDs * learningRate)
     return [newIntercept, newSlope]
 
 def GradientDescent(Yintercept, Slope, iterations, points, learningRate):
+    b = Yintercept
+    m = Slope
     for i in range(0,iterations):
-        b,m = Step(Yintercept, Slope, points, learningRate)
-    return [b,m]
+        [b,m] = Step(b, m, points, learningRate)
+        print(f"Y = {m}X + {b} RESULT OF ITERATIONS {i}")
 
 def Start():
     points = f 
     learningRate = 0.0001
     Yintercept = 0
-    Gradient = 0
-    iterations = 1000
+    Gradient = 2
+    iterations = 10
     [b,m] = GradientDescent(Yintercept, Gradient, iterations, points, learningRate)
     print(f"Y = {m}X + {b}")
 
