@@ -1,4 +1,3 @@
-
 # Take derivative of the loss function with respect to each parameter
 # Pick random values for parameters
 # Plug parameter values into the derivatives
@@ -6,49 +5,45 @@
 # Calculate the new parameters: New params = old params - step 
 
 
-# f(x) = 5x + 3 
-# Making a dictionary mapping x to f(x) --> x : f(x) (The function I want)
-f = {i : ((i*5) + 3) for i in range(0,100000)}
-points = f 
-
-
-def Loss(Yintercept, Slope ,points):
+def Loss(points, C, M):
     """
-    This function calculates the loss by the 
-    Summing the squares of differences between the true Y values and predicted Y values
+    Parametric function assumes that line is in the form Y = Mx + C 
+    where M and C are the parameters to be changed
+    Calculates the Cost by summing the squares of differences
     """
-    totalError = 0 
+    Error = 0
     for i in range(0,len(points)):
-        totalError += (points[i] - ((Slope * i) + Yintercept)) ** 2    
-    return (totalError)
+        Error += (points[i] - ((i*M) + C))**2
+    return Error / float(len(points))
 
 
-def Step(Yintercept, Slope, points, learningRate):
+def Step(points, C, M, learningRate):
     """
-    This function calculates the step size and updates the values of Yintercept and Slope
+    This functions takes the mapping, Yintercept (C) and Slope(M) and calculates the step size based on partial derivatives
+    Then the function returns the updated parameters C and M. 
     """
-    dlDm , dlDs = 0,0  
-    for i in range(0,len(points)):
-        dlDm += -2 * (points[i] - ((Slope * i  ) + Yintercept)) # Relates how the Loss changes as the intercept changes
-        dlDs += -2 * i * (points[i] - ((Slope * i  ) + Yintercept)) # Relates how the Loss changes as the Slope changes
-    newIntercept = Yintercept - (dlDm * learningRate)
-    newSlope = Slope - (dlDs * learningRate)
-    return [newIntercept, newSlope]
+    dLdC, dLdM = 0,0 # Partial derivatives
 
-def GradientDescent(Yintercept, Slope, iterations, points, learningRate):
-    b = Yintercept
-    m = Slope
-    for i in range(0,iterations):
-        [b,m] = Step(b, m, points, learningRate)
-        print(f"Y = {m}X + {b} RESULT OF ITERATIONS {i}")
+    N = float(len(points))
+    for X in range(0, len(points)):
+        dLdC += -(2/N) * (points[X] -  (M * X) + C) 
+        dLdM += -(2/N) * X * (points[X] - (M * X) + C)
+    new_C = C - (learningRate * dLdC)
+    new_M = M - (learningRate * dLdM)
+    return [new_C, new_M]
 
-def Start():
-    points = f 
-    learningRate = 0.0001
-    Yintercept = 0
-    Gradient = 2
-    iterations = 10
-    [b,m] = GradientDescent(Yintercept, Gradient, iterations, points, learningRate)
-    print(f"Y = {m}X + {b}")
+def GradientDescent(points, C, M, LearningRate, Iterations):
+    Final_C = C 
+    Final_M = M 
+    for i in range(0,Iterations):
+        Final_C,Final_M = Step(points, Final_C, Final_M, LearningRate)
+        print(f"Y = {Final_M}X + {Final_C} ERROR = {Loss(points, Final_C, Final_M)}")
+    return [Final_C, Final_M]
 
-Start()
+# Points is an array where the index indicates the X value and the value within that index is the Y value.
+points = [((i*5) + 3 ) for i in range(0,100)] 
+C = 0 
+M = 0
+LearningRate = 0.0001
+Iterations = 10000
+GradientDescent(points, C, M, LearningRate, Iterations)
