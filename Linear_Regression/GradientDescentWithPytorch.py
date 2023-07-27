@@ -1,47 +1,31 @@
-import torch 
+import torch
 from functools import partial
-import random
 
 def f(x):
-    """
-    Original function we want to predict
-    """
-    return ((2*x) + 5)
+    return ((4*x**2) + (2 * x) + 3) ## 4x^2 + 2x + 3
 
-def linear(M,C,X):
-    return ((M*X) + C)
+def quad(a,b,c,x):
+    return(a*x**2 + b*x + c)
 
-def make_function(M, C):
-    """
-    Returns a partial function
-    based on parameters M and C in the form of
-    Y = Mx + C
-    """
-    return partial(linear, M, C)
+def make_quad(a, b, c):
+    return partial(quad, a, b, c)
+
+x = torch.linspace(-2, 2, steps=20)[:,None]
+y = f(x)
 
 def mae(preds, acts):
-    return (torch.abs(preds-acts)).double().mean()
-
-x = torch.arange(1, 1000)
-Y = f(x) 
-
-
+    return (torch.abs(preds - acts)).mean()
 def LOSS(params):
-    """
-    Creates a function out of the parameters and calculates 
-    the loss by comparing it to the original function
-    """
-    print(params)
-    f = make_function(*params)
-    return mae(f(x), Y)
+    func = make_quad(*params)
+    return mae(func(x), y)
 
-random_tensor = torch.tensor([0.03, 0.20])
-random_tensor.requires_grad_()
 
-for i in range(0,10):
-    loss = LOSS(random_tensor)
-    # Calculate gradients
-    loss.backward()
+abc = torch.tensor([1.5, 1.5, 1.5])
+abc.requires_grad_()
+
+for i in range(6):
+    Loss = LOSS(abc)
+    Loss.backward()
     with torch.no_grad():
-        random_tensor -= random_tensor.grad*0.01
-    print(random_tensor)
+        abc -= abc.grad * 0.1
+        print("LOSS: ", Loss, "ABC: ", abc)
